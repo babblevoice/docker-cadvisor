@@ -1,4 +1,4 @@
-FROM golang:alpine3.16 AS builder
+FROM golang:alpine3.19 AS builder
 
 WORKDIR /usr/src/
 
@@ -8,7 +8,7 @@ RUN apk update --no-cache; \
     cd cadvisor; \
     make build;
 
-FROM alpine:3.16
+FROM alpine:3.19
 
 RUN apk update --no-cache; \
     apk add --no-cache wget musl
