@@ -4,7 +4,7 @@ WORKDIR /usr/src/
 
 RUN apk update --no-cache; \
     apk add --no-cache make git gcc musl-dev bash; \
-    git clone --branch v0.55.1 --single-branch https://github.com/google/cadvisor.git \
+    git clone --branch v0.55.1 --single-branch https://github.com/google/cadvisor.git; \
     cd cadvisor; \
     make build;
 
