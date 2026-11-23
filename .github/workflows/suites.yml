@@ -1,0 +1,56 @@
+name: Suites
+
+# The repository's test suites, defined once (BACKEND-25).
+#
+# This file is a copy of a template in babblevoice/babble-configs'
+# workflow-templates. Change only what is between `# >>> settings` and
+# `# <<< settings`, and comments; the templates' README says how, and their
+# check-copy.sh checks a copy.
+#
+# Nothing triggers this file on its own. It is called, as a job, by:
+#   - release.yml, on every release tag, where it is the gate: a red suite
+#     stops the image before a single digest is pushed;
+#   - nightly.yml, on main once a night, skipped when main has not moved;
+#   - pr-checks.yml, on every pull request, but only in a PUBLIC repository,
+#     where Actions minutes are free. A private repository runs no suite on a
+#     pull request: the author runs them before opening it, and pr-proof.yml
+#     checks the PR says so.
+#
+# Why a called workflow rather than copies of these jobs in each caller.
+#   A workflow cannot gate another workflow's publish, which is why
+#   Turnstile's build.yml used to carry its own copy of test.yml's jobs, kept in
+#   step by comments in both files. A called workflow runs as a job OF its
+#   caller, so release.yml's build `needs:` it like any other job, and the
+#   suites are written once.
+#
+# What a job here must keep, whoever edits it:
+#   - `permissions: contents: read` and no `secrets` at all. No caller passes
+#     any, and none should: on a public repository a fork's pull request runs
+#     these jobs with its own code.
+#   - the default checkout, with no `ref:`. Each caller's event already names
+#     the right commit: the tag, main's tip at night (or the branch a run was
+#     asked for on), or the pull request's merge ref.
+#   - a `timeout-minutes` above the suite's slowest run, so a hang fails with a
+#     readable log rather than sitting until the 6-hour ceiling. A job that
+#     hits it ends cancelled, and release.yml publishes only on success.
+
+on:
+  workflow_call:
+
+jobs:
+  # >>> settings: the repository's suites, one job each
+  # docker-cadvisor has no suites: its Dockerfile builds Google's cAdvisor
+  # from a pinned tag, and this repository holds no code of its own to test.
+  # So release.yml's start-up check, which starts the image and asks it for
+  # /metrics, is the whole gate, and this job says so.
+  suites:
+    name: Suites (none; the image's start-up is its check)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 5
+    steps:
+      - name: Say there are none
+        run: |
+          echo "docker-cadvisor has no suites. release.yml's start-up check starts the image and asks it for /metrics."
+  # <<< settings
